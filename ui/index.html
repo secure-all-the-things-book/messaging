@@ -1,0 +1,19 @@
+<html lang="">
+<title>
+    Messaging
+</title>
+<body>
+ <a href="#" onclick="window.location.href='/email'">
+     re-send email to yourself
+ </a>
+<script>
+    addEventListener('load' , e => {
+        const emailLink = document.querySelector('a');
+        emailLink.addEventListener('click', e => {
+            e.preventDefault();
+            window.location.href = '/email';
+        })
+    })
+</script>
+</body>
+</html>
