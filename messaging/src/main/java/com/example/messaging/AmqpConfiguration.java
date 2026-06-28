@@ -4,7 +4,7 @@ import org.springframework.amqp.core.*;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import static bootiful.processor.Constants.RABBITMQ_DESTINATION_NAME;
+import static com.example.messaging.Constants.RABBITMQ_DESTINATION_NAME;
 
 @Configuration
 class AmqpConfiguration {

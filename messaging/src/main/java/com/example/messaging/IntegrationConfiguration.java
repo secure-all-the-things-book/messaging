@@ -15,12 +15,12 @@ import org.springframework.security.messaging.access.intercept.AuthorizationChan
 import org.springframework.security.messaging.context.SecurityContextChannelInterceptor;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationProvider;
 
-import static bootiful.processor.Constants.AUTHORIZATION_HEADER_NAME;
-import static bootiful.processor.Constants.RABBITMQ_DESTINATION_NAME;
+import static com.example.messaging.Constants.AUTHORIZATION_HEADER_NAME;
+import static com.example.messaging.Constants.RABBITMQ_DESTINATION_NAME;
+
 
 @Configuration
 class IntegrationConfiguration {
-
 
     // <.>
     @Bean
