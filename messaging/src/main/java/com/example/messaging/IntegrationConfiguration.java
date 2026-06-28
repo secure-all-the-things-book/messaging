@@ -1,6 +1,5 @@
 package com.example.messaging;
 
-import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
@@ -40,13 +39,13 @@ class IntegrationConfiguration {
     IntegrationFlow requestsIntegrationFlow(
             @Qualifier(Constants.REQUESTS_MESSAGE_CHANNEL) MessageChannel requests) {
 
-        var log = LoggerFactory.getLogger(getClass());
 
         return IntegrationFlow
                 .from(requests)//
                 .handle((payload, headers) -> {
-                    log.info("----");
-                    headers.forEach((key, value) -> log.info("{}={}", key, value));
+                    IO.println("----");
+                    headers.forEach((key, value) -> IO.println("%s=%s".formatted(
+                            key, value)));
                     return null;
                 })//
                 .get();

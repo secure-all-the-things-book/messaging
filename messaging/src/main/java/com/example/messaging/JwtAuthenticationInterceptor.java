@@ -34,7 +34,7 @@ class JwtAuthenticationInterceptor implements ChannelInterceptor {
                 .authenticate(new BearerTokenAuthenticationToken(token));
 
         // <.>
-        if (authentication != null && authentication.isAuthenticated()) {
+        if (authentication.isAuthenticated()) {
             var upt =
                     UsernamePasswordAuthenticationToken.authenticated(authentication.getName(),
                             null, AuthorityUtils.NO_AUTHORITIES);
