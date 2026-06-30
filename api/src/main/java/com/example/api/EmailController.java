@@ -15,20 +15,19 @@ import java.util.Map;
 @ResponseBody
 class EmailController {
 
-    private final MessageChannel requests;
+	private final MessageChannel requests;
 
-    EmailController(MessageChannel requests) {
-        this.requests = requests;
-    }
+	EmailController(MessageChannel requests) {
+		this.requests = requests;
+	}
 
-    @GetMapping("/")
-    Map<String, Object> home(Principal principal, @RegisteredOAuth2AuthorizedClient("crm") OAuth2AuthorizedClient auth2AuthorizedClient) {
-        var jwt = auth2AuthorizedClient.getAccessToken().getTokenValue();
-        var message = MessageBuilder
-                .withPayload(principal.getName())
-                .setHeader("jwt", jwt)
-                .build();
-        var sent = this.requests.send(message);
-        return Map.of("sent", sent);
-    }
+	@GetMapping("/")
+	Map<String, Object> home(Principal principal,
+			@RegisteredOAuth2AuthorizedClient("crm") OAuth2AuthorizedClient auth2AuthorizedClient) {
+		var jwt = auth2AuthorizedClient.getAccessToken().getTokenValue();
+		var message = MessageBuilder.withPayload(principal.getName()).setHeader("jwt", jwt).build();
+		var sent = this.requests.send(message);
+		return Map.of("sent", sent);
+	}
+
 }

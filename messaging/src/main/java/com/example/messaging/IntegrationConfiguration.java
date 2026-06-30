@@ -17,59 +17,43 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 import static com.example.messaging.Constants.AUTHORIZATION_HEADER_NAME;
 import static com.example.messaging.Constants.RABBITMQ_DESTINATION_NAME;
 
-
 @Configuration
 class IntegrationConfiguration {
 
-    // <.>
-    @Bean
-    IntegrationFlow inboundAmqpRequestsIntegrationFlow(
-            @Qualifier(Constants.REQUESTS_MESSAGE_CHANNEL) MessageChannel requests,
-            ConnectionFactory connectionFactory) {
-        var inboundAmqpAdapter = Amqp
-                .inboundAdapter(connectionFactory, RABBITMQ_DESTINATION_NAME);
-        return IntegrationFlow
-                .from(inboundAmqpAdapter)
-                .channel(requests)
-                .get();
-    }
+	// <.>
+	@Bean
+	IntegrationFlow inboundAmqpRequestsIntegrationFlow(
+			@Qualifier(Constants.REQUESTS_MESSAGE_CHANNEL) MessageChannel requests,
+			ConnectionFactory connectionFactory) {
+		var inboundAmqpAdapter = Amqp.inboundAdapter(connectionFactory, RABBITMQ_DESTINATION_NAME);
+		return IntegrationFlow.from(inboundAmqpAdapter).channel(requests).get();
+	}
 
-    // <.>
-    @Bean
-    IntegrationFlow requestsIntegrationFlow(
-            @Qualifier(Constants.REQUESTS_MESSAGE_CHANNEL) MessageChannel requests) {
+	// <.>
+	@Bean
+	IntegrationFlow requestsIntegrationFlow(@Qualifier(Constants.REQUESTS_MESSAGE_CHANNEL) MessageChannel requests) {
 
+		return IntegrationFlow.from(requests)//
+			.handle((payload, headers) -> {
+				IO.println("----");
+				headers.forEach((key, value) -> IO.println("%s=%s".formatted(key, value)));
+				return null;
+			})//
+			.get();
+	}
 
-        return IntegrationFlow
-                .from(requests)//
-                .handle((payload, headers) -> {
-                    IO.println("----");
-                    headers.forEach((key, value) -> IO.println("%s=%s".formatted(
-                            key, value)));
-                    return null;
-                })//
-                .get();
-    }
-
-    // <.>
-    @Bean(Constants.REQUESTS_MESSAGE_CHANNEL)
-    DirectChannelSpec requests(JwtAuthenticationProvider jwtAuthenticationProvider) {
-        // <.>
-        var jwtAuthInterceptor = new JwtAuthenticationInterceptor(
-                AUTHORIZATION_HEADER_NAME, jwtAuthenticationProvider);
-        // <.>
-        var securityContextChannelInterceptor = new SecurityContextChannelInterceptor(
-                AUTHORIZATION_HEADER_NAME);
-        // <.>
-        var authorizationChannelInterceptor = new AuthorizationChannelInterceptor(
-                AuthenticatedAuthorizationManager.authenticated());
-        return MessageChannels
-                .direct()
-                .interceptor(
-                        jwtAuthInterceptor,
-                        securityContextChannelInterceptor,
-                        authorizationChannelInterceptor
-                );
-    }
+	// <.>
+	@Bean(Constants.REQUESTS_MESSAGE_CHANNEL)
+	DirectChannelSpec requests(JwtAuthenticationProvider jwtAuthenticationProvider) {
+		// <.>
+		var jwtAuthInterceptor = new JwtAuthenticationInterceptor(AUTHORIZATION_HEADER_NAME, jwtAuthenticationProvider);
+		// <.>
+		var securityContextChannelInterceptor = new SecurityContextChannelInterceptor(AUTHORIZATION_HEADER_NAME);
+		// <.>
+		var authorizationChannelInterceptor = new AuthorizationChannelInterceptor(
+				AuthenticatedAuthorizationManager.authenticated());
+		return MessageChannels.direct()
+			.interceptor(jwtAuthInterceptor, securityContextChannelInterceptor, authorizationChannelInterceptor);
+	}
 
 }
