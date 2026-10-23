@@ -8,7 +8,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import java.security.Principal;
 import java.util.Map;
 
 @Controller
@@ -17,16 +16,20 @@ class EmailController {
 
 	private final MessageChannel requests;
 
+	// <.>
 	EmailController(MessageChannel requests) {
 		this.requests = requests;
 	}
 
 	@GetMapping("/")
-	Map<String, Object> home(Principal principal,
-			@RegisteredOAuth2AuthorizedClient("crm") OAuth2AuthorizedClient auth2AuthorizedClient) {
-		var jwt = auth2AuthorizedClient.getAccessToken().getTokenValue();
-		var message = MessageBuilder.withPayload(principal.getName()).setHeader("jwt", jwt).build();
-		var sent = this.requests.send(message);
+	Map<String, Object> email(@RegisteredOAuth2AuthorizedClient("crm") OAuth2AuthorizedClient authorizedClient) { // <.>
+		var accessToken = authorizedClient.getAccessToken().getTokenValue(); // <.>
+		var emailRequest = new EmailRequest("Welcome!", "Thanks for signing up.");
+		var message = MessageBuilder //
+			.withPayload(emailRequest) //
+			.setHeader("jwt", accessToken) // <.>
+			.build();
+		var sent = this.requests.send(message); // <.>
 		return Map.of("sent", sent);
 	}
 

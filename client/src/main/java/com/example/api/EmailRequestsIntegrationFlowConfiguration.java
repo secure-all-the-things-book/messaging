@@ -7,25 +7,29 @@ import org.springframework.integration.amqp.dsl.Amqp;
 import org.springframework.integration.dsl.DirectChannelSpec;
 import org.springframework.integration.dsl.IntegrationFlow;
 import org.springframework.integration.dsl.MessageChannels;
-import org.springframework.integration.json.ObjectToJsonTransformer;
+import org.springframework.integration.dsl.Transformers;
 import org.springframework.messaging.MessageChannel;
 
 @Configuration
 class EmailRequestsIntegrationFlowConfiguration {
 
-	private final String destinationName = "emails";
+	private static final String DESTINATION_NAME = "emails";
 
 	@Bean
-	IntegrationFlow emailRequestsIntegrationFlow(MessageChannel requests, AmqpTemplate template) {
-		// <1>
-		var outboundAmqpAdapter = Amqp.outboundAdapter(template).routingKey(this.destinationName);
-
-		return IntegrationFlow.from(requests)// <2>
-			.transform(new ObjectToJsonTransformer()) // <3>
-			.handle(outboundAmqpAdapter) // <4>
+	IntegrationFlow emailRequestsIntegrationFlow(MessageChannel requests, AmqpTemplate amqpTemplate) {
+		// <.>
+		var outboundAmqpAdapter = Amqp //
+			.outboundAdapter(amqpTemplate) //
+			.exchangeName(DESTINATION_NAME) //
+			.routingKey(DESTINATION_NAME);
+		return IntegrationFlow //
+			.from(requests) // <.>
+			.transform(Transformers.toJson()) // <.>
+			.handle(outboundAmqpAdapter) // <.>
 			.get();
 	}
 
+	// <.>
 	@Bean
 	DirectChannelSpec requests() {
 		return MessageChannels.direct();
